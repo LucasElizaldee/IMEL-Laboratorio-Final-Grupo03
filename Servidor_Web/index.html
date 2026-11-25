@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IMEL - Grupo 03</title>
+
+    <link rel="stylesheet" href="estilos_zoom.css?v=3">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0/dist/chartjs-plugin-zoom.min.js"></script>
+</head>
+
+<body>
+
+<header class="encabezado">
+    <div>
+        <h1>Sistema de Instrumentación Multivariable</h1>
+        <p>Laboratorio Final Integrador - Instrumentación y Medidas Eléctricas</p>
+        <p class="grupo">Grupo 03 - Ignacio Martínez / Lucas Elizalde</p>
+    </div>
+
+    <div class="estado-general">
+        <span id="indicador-servidor" class="punto"></span>
+        <span id="texto-servidor">Consultando servidor...</span>
+    </div>
+</header>
+
+<main>
+
+    <section>
+        <div class="titulo-seccion">
+            <h2>Valores actuales</h2>
+            <span id="ultima-actualizacion">--</span>
+        </div>
+
+        <div class="tarjetas">
+            <article class="tarjeta">
+                <h3>Corriente</h3>
+                <div id="valor-corriente" class="valor">--</div>
+                <div class="unidad">A</div>
+                <div id="fecha-corriente" class="fecha-muestra">Sin datos</div>
+                <div class="tolerancia">Banda utilizada: ±8 %</div>
+            </article>
+
+            <article class="tarjeta">
+                <h3>Temperatura</h3>
+                <div id="valor-temperatura" class="valor">--</div>
+                <div class="unidad">°C</div>
+                <div id="fecha-temperatura" class="fecha-muestra">Sin datos</div>
+                <div class="tolerancia">Banda utilizada: ±2 °C</div>
+            </article>
+
+            <article class="tarjeta">
+                <h3>Humedad</h3>
+                <div id="valor-humedad" class="valor">--</div>
+                <div class="unidad">%</div>
+                <div id="fecha-humedad" class="fecha-muestra">Sin datos</div>
+                <div class="tolerancia">Banda utilizada: ±5 %</div>
+            </article>
+
+            <article class="tarjeta">
+                <h3>Luminosidad</h3>
+                <div id="valor-luminosidad" class="valor">--</div>
+                <div class="unidad">%</div>
+                <div id="fecha-luminosidad" class="fecha-muestra">Sin datos</div>
+                <div class="tolerancia">Banda ADC: ±0,049 puntos porcentuales</div>
+            </article>
+        </div>
+    </section>
+
+    <section>
+        <h2>Histórico de mediciones</h2>
+
+        <p class="ayuda-grafica">
+            Actualización automática · Rueda: zoom horizontal · Shift + arrastrar: desplazarse · Doble clic: restablecer
+        </p>
+
+        <div class="filtros">
+            <label>
+                Desde
+                <input type="date" id="fecha-desde">
+            </label>
+
+            <label>
+                Hasta
+                <input type="date" id="fecha-hasta">
+            </label>
+
+            <button id="btn-consultar">Consultar</button>
+            <button id="btn-hoy" class="secundario">Hoy</button>
+            <button id="btn-reset-todas" class="secundario">Restablecer zoom</button>
+        </div>
+
+        <p id="mensaje-historico" class="mensaje"></p>
+
+        <div class="graficas">
+
+            <article class="grafica">
+                <div class="grafica-titulo">
+                    <h3>Corriente</h3>
+                    <button class="boton-reset" data-chart="corriente">Reset</button>
+                </div>
+                <div class="grafica-contenedor">
+                    <canvas id="grafica-corriente"></canvas>
+                </div>
+            </article>
+
+            <article class="grafica">
+                <div class="grafica-titulo">
+                    <h3>Temperatura</h3>
+                    <button class="boton-reset" data-chart="temperatura">Reset</button>
+                </div>
+                <div class="grafica-contenedor">
+                    <canvas id="grafica-temperatura"></canvas>
+                </div>
+            </article>
+
+            <article class="grafica">
+                <div class="grafica-titulo">
+                    <h3>Humedad</h3>
+                    <button class="boton-reset" data-chart="humedad">Reset</button>
+                </div>
+                <div class="grafica-contenedor">
+                    <canvas id="grafica-humedad"></canvas>
+                </div>
+            </article>
+
+            <article class="grafica">
+                <div class="grafica-titulo">
+                    <h3>Luminosidad</h3>
+                    <button class="boton-reset" data-chart="luminosidad">Reset</button>
+                </div>
+                <div class="grafica-contenedor">
+                    <canvas id="grafica-luminosidad"></canvas>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <section>
+        <h2>Configuración remota</h2>
+
+        <p class="descripcion">
+            Los intervalos se expresan en milisegundos. La temperatura y la humedad
+            utilizan un mínimo de 2000 ms debido a las limitaciones de adquisición del DHT11.
+        </p>
+
+        <form id="form-config">
+            <div class="config-grid">
+
+                <label>
+                    Corriente
+                    <input type="number" id="cfg-corriente" min="50" max="600000" value="1000" required>
+                    <span>ms</span>
+                </label>
+
+                <label>
+                    Temperatura
+                    <input type="number" id="cfg-temperatura" min="2000" max="600000" value="5000" required>
+                    <span>ms</span>
+                </label>
+
+                <label>
+                    Humedad
+                    <input type="number" id="cfg-humedad" min="2000" max="600000" value="7000" required>
+                    <span>ms</span>
+                </label>
+
+                <label>
+                    Luminosidad
+                    <input type="number" id="cfg-luminosidad" min="50" max="600000" value="3000" required>
+                    <span>ms</span>
+                </label>
+
+            </div>
+
+            <button type="submit" class="btn-aplicar">
+                Aplicar configuración
+            </button>
+        </form>
+
+        <div id="mensaje-config" class="mensaje"></div>
+
+        <div class="estado-config">
+            <h3>Última configuración</h3>
+
+            <div class="estado-grid">
+                <div>
+                    <span>ID</span>
+                    <strong id="ultima-id">--</strong>
+                </div>
+
+                <div>
+                    <span>Estado</span>
+                    <strong id="ultimo-estado">--</strong>
+                </div>
+
+                <div>
+                    <span>Solicitada</span>
+                    <strong id="ultima-solicitud">--</strong>
+                </div>
+
+                <div>
+                    <span>Aplicada</span>
+                    <strong id="ultima-aplicacion">--</strong>
+                </div>
+            </div>
+
+            <div id="ultimos-intervalos" class="intervalos-ultima"></div>
+        </div>
+    </section>
+
+    <section class="arquitectura">
+        <h2>Arquitectura implementada</h2>
+
+        <p>
+            Sensores → Arduino Nano → I2C → ESP32-C3 → MQTT →
+            Mosquitto/SQLite local → HTTP → PHP/MySQL
+        </p>
+
+        <p>
+            El camino descendente permite enviar nuevas tasas de muestreo desde esta
+            interfaz y confirmar su aplicación física en el Arduino Nano.
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    Grupo 03 - Ingeniería en Mecatrónica - UTEC
+</footer>
+
+<script src="dashboard_zoom_live.js?v=4"></script>
+
+</body>
+</html>

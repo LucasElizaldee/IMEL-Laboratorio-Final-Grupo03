@@ -1,0 +1,3 @@
+# Ejemplo para una red de laboratorio aislada. No exponer a Internet.
+listener 1883
+allow_anonymous true
